@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dragon Ball Z Quiz</title>
+    <style>
+        /* --- ESTILOS GENERALES Y DISEÑO DBZ --- */
+        @import url('https://fonts.googleapis.com/css2?family=Bangers&family=Roboto:wght@400;700&display=swap');
+
+        :root {
+            --goku-orange: #F85B1A;
+            --goku-blue: #072083;
+            --saiyan-yellow: #FDE222;
+            --shenron-green: #258327;
+            --bg-color: #1a1a1a;
+            --text-color: #333;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: radial-gradient(circle, #2c3e50, #000000);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: var(--text-color);
+            padding: 20px;
+        }
+
+        /* Contenedor Principal (Estilo Carta de Poder) */
+        .quiz-container {
+            background-color: #fff;
+            width: 100%;
+            max-width: 600px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 0 20px var(--goku-orange), 0 0 40px var(--goku-blue);
+            border: 5px solid var(--goku-orange);
+            position: relative;
+        }
+
+        /* Cabecera del Quiz */
+        .quiz-header {
+            background-color: var(--goku-orange);
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 5px solid var(--goku-blue);
+        }
+
+        .quiz-header h1 {
+            font-family: 'Bangers', cursive;
+            font-size: 2.5rem;
+            letter-spacing: 2px;
+            text-shadow: 3px 3px 0px #000;
+        }
+
+        /* Cuerpo del Quiz */
+        .quiz-body {
+            padding: 30px;
+        }
+
+        .question-text {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 25px;
+            text-align: center;
+            color: var(--goku-blue);
+        }
+
+        /* Opciones de respuesta */
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .option-btn {
+            background-color: #f0f0f0;
+            border: 3px solid var(--goku-blue);
+            border-radius: 8px;
+            padding: 15px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: bold;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option-btn:hover:not([disabled]) {
+            background-color: var(--goku-blue);
+            color: var(--saiyan-yellow);
+            transform: scale(1.02);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        /* Estados de respuesta */
+        .option-btn.correct {
+            background-color: var(--shenron-green);
+            color: white;
+            border-color: #165017;
+        }
+
+        .option-btn.incorrect {
+            background-color: #e74c3c;
+            color: white;
+            border-color: #c0392b;
+        }
+
+        .option-btn[disabled] {
+            cursor: no-drop;
+            opacity: 0.7;
+        }
+
+        /* Botón Siguiente */
+        .next-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin-top: 25px;
+            background-color: var(--goku-blue);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Bangers', cursive;
+            font-size: 1.5rem;
+            cursor: pointer;
+            letter-spacing: 1px;
+            transition: background 0.3s;
+        }
+
+        .next-btn:hover {
+            background-color: var(--goku-orange);
+            color: #000;
+        }
+
+        .hide {
+            display: none;
+        }
+
+        /* Pantalla de Resultados */
+        .result-container {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .result-title {
+            font-family: 'Bangers', cursive;
+            font-size: 3rem;
+            color: var(--goku-orange);
+            text-shadow: 2px 2px 0px var(--goku-blue);
+            margin-bottom: 20px;
+        }
+
+        .score-text {
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+        }
+
+        /* Animación de esfera del dragón (decorativa) */
+        .dragon-ball-deco {
+            width: 50px;
+            height: 50px;
+            background: radial-gradient(circle at 30% 30%, #ff9e42, #ef5805);
+            border-radius: 50%;
+            border: 2px solid #b93f00;
+            margin: 0 auto 20px auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #d11e00;
+            font-weight: bold;
+            font-size: 1.5rem;
+            box-shadow: 0 0 10px #ef5805;
+        }
+
+        /* Media Queries para Responsividad */
+        @media (max-width: 500px) {
+            .quiz-header h1 { font-size: 2rem; }
+            .question-text { font-size: 1.1rem; }
+            .option-btn { padding: 12px; font-size: 0.9rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-container">
+        <div class="quiz-header">
+            <div class="dragon-ball-deco">Z</div>
+            <h1>DBZ QUIZ</h1>
+        </div>
+
+        <!-- Sección de preguntas -->
+        <div id="quiz-box" class="quiz-body">
+            <h2 id="question" class="question-text">Cargando pregunta...</h2>
+            <div id="options" class="options-container">
+                <!-- Los botones se generan con JS -->
+            </div>
+            <button id="next-btn" class="next-btn hide" onclick="nextQuestion()">Siguiente &rarr;</button>
+        </div>
+
+        <!-- Sección de resultados -->
+        <div id="result-box" class="quiz-body hide result-container">
+            <div class="result-title">¡RESULTADOS!</div>
+            <p class="score-text">Tu nivel de pelea es: <span id="score">0</span>/5</p>
+            <button class="next-btn" onclick="restartQuiz()">Volver a Jugar</button>
+        </div>
+    </div>
+
+    <script>
+        /* --- LÓGICA DEL QUIZ (JAVA SCRIPT) --- */
+        
+        // 1. Datos de las preguntas
+        const questions = [
+            {
+                question: "¿Cuál es el verdadero nombre Saiyajin de Goku?",
+                answers: [
+                    { text: "Vegeta", correct: false },
+                    { text: "Kakarotto", correct: true },
+                    { text: "Raditz", correct: false },
+                    { text: "Broly", correct: false }
+                ]
+            },
+            {
+                question: "¿Quién fue el primero en convertirse en Super Saiyajin 2?",
+                answers: [
+                    { text: "Goku", correct: false },
+                    { text: "Vegeta", correct: false },
+                    { text: "Gohan", correct: true },
+                    { text: "Trunks del futuro", correct: false }
+                ]
+            },
+            {
+                question: "¿Cuántas Esferas del Dragón hay en la Tierra?",
+                answers: [
+                    { text: "5", correct: false },
+                    { text: "6", correct: false },
+                    { text: "7", correct: true },
+                    { text: "9", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué técnica le enseñó Kaio-sama a Goku?",
+                answers: [
+                    { text: "Kame Hame Ha", correct: false },
+                    { text: "Kaio-Ken", correct: true },
+                    { text: "Masenko", correct: false },
+                    { text: "Final Flash", correct: false }
+                ]
+            },
+            {
+                question: "¿Cómo se llama el planeta natal de los Saiyajins?",
+                answers: [
+                    { text: "Planeta Namekusei", correct: false },
+                    { text: "Planeta Tierra", correct: false },
+                    { text: "Planeta Vegeta", correct: true },
+                    { text: "Planeta Freezer", correct: false }
+                ]
+            }
+        ];
+
+        // 2. Variables de estado
+        let currentQuestionIndex = 0;
+        let score = 0;
+
+        // 3. Referencias al DOM
+        const questionElement = document.getElementById('question');
+        const optionsElement = document.getElementById('options');
+        const nextButton = document.getElementById('next-btn');
+        const quizBox = document.getElementById('quiz-box');
+        const resultBox = document.getElementById('result-box');
+        const scoreElement = document.getElementById('score');
+
+        // 4. Función para iniciar el juego
+        function startQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            quizBox.classList.remove('hide');
+            resultBox.classList.add('hide');
+            showQuestion();
+        }
+
+        // 5. Mostrar pregunta
+        function showQuestion() {
+            resetState(); // Limpiar opciones anteriores
+            let currentQuestion = questions[currentQuestionIndex];
+            questionElement.innerText = `${currentQuestionIndex + 1}. ${currentQuestion.question}`;
+
+            currentQuestion.answers.forEach(answer => {
+                const button = document.createElement('button');
+                button.innerText = answer.text;
+                button.classList.add('option-btn');
+                if (answer.correct) {
+                    button.dataset.correct = answer.correct;
+                }
+                button.addEventListener('click', selectAnswer);
+                optionsElement.appendChild(button);
+            });
+        }
+
+        // 6. Resetear estado visual (ocultar botón siguiente, borrar opciones viejas)
+        function resetState() {
+            nextButton.classList.add('hide');
+            while (optionsElement.firstChild) {
+                optionsElement.removeChild(optionsElement.firstChild);
+            }
+        }
+
+        // 7. Seleccionar respuesta
+        function selectAnswer(e) {
+            const selectedBtn = e.target;
+            const isCorrect = selectedBtn.dataset.correct === "true";
+            
+            if (isCorrect) {
+                selectedBtn.classList.add('correct');
+                score++;
+            } else {
+                selectedBtn.classList.add('incorrect');
+            }
+
+            // Mostrar cuál era la correcta si se equivocó y deshabilitar todos
+            Array.from(optionsElement.children).forEach(button => {
+                if (button.dataset.correct === "true") {
+                    button.classList.add('correct');
+                }
+                button.disabled = true;
+            });
+
+            nextButton.classList.remove('hide');
+        }
+
+        // 8. Siguiente Pregunta
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                showQuestion();
+            } else {
+                showScore();
+            }
+        }
+
+        // 9. Mostrar Puntaje Final
+        function showScore() {
+            quizBox.classList.add('hide');
+            resultBox.classList.remove('hide');
+            scoreElement.innerText = score;
+        }
+
+        // 10. Reiniciar
+        function restartQuiz() {
+            startQuiz();
+        }
+
+        // Arrancar el quiz al cargar la página
+        startQuiz();
+
+    </script>
+</body>
+</html>
